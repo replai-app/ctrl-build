@@ -6,10 +6,17 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "cf:deploy": "npm run build && wrangler pages deploy .next",
+    "cf:preview": "npm run build && wrangler pages deploy .next --branch preview"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "@supabase/ssr": "^0.8.0",
+    "@supabase/supabase-js": "^2.86.0",
+    "groq-sdk": "^0.37.0",
     "next": "16.0.7",
+    "phosphor-react": "^1.4.1",
     "react": "19.2.0",
     "react-dom": "19.2.0"
   },
