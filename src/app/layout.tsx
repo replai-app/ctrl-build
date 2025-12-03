@@ -101,18 +101,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              if (typeof window !== 'undefined') {
-                window.__NEXT_PUBLIC_SUPABASE_URL__ = ${JSON.stringify(process.env.NEXT_PUBLIC_SUPABASE_URL || '')};
-                window.__NEXT_PUBLIC_SUPABASE_ANON_KEY__ = ${JSON.stringify(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '')};
-              }
-            `,
-          }}
-        />
-      </head>
       <body className="antialiased">
         <Navigation />
         <main className="pt-16">{children}</main>
