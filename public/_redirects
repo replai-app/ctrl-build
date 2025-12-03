@@ -3,8 +3,6 @@
 /assets/* /public/assets/:splat 200
 /manifest.json /public/manifest.json 200
 /favicon* /public/favicon* 200
-/api/* /api/:splat 200
-/auth/* /auth/:splat 200
 /login /server/app/login.html 200
 /signup /server/app/signup.html 200
 /recover /server/app/recover.html 200
@@ -13,4 +11,3 @@
 /zero-log /server/app/zero-log.html 200
 /robots.txt /server/app/robots.txt.body 200
 /sitemap.xml /server/app/sitemap.xml.body 200
-/* /server/app/index.html 200
