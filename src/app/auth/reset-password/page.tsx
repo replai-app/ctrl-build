@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 
+export const dynamic = 'force-dynamic';
+
 function ResetPasswordForm() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -12,7 +14,21 @@ function ResetPasswordForm() {
   const [error, setError] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
   const router = useRouter();
-  const supabase = createClient();
+  
+  let supabase;
+  try {
+    supabase = createClient();
+  } catch (error) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#F4F4F0] px-6">
+        <div className="w-full max-w-md">
+          <p className="font-['SpaceMono'] text-sm text-red-500">
+            ERROR: Supabase not configured
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   useEffect(() => {
     const checkSession = async () => {
