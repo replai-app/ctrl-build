@@ -1,15 +1,17 @@
-/_next/static/*
-  Content-Type: application/javascript
-  Cache-Control: public, max-age=31536000, immutable
-
-/_next/static/*.css
+/_next/static/chunks/*.css
   Content-Type: text/css
   Cache-Control: public, max-age=31536000, immutable
 
-/_next/static/*.js
+/_next/static/chunks/*.js
+  Content-Type: application/javascript
+  Cache-Control: public, max-age=31536000, immutable
+
+/_next/static/*
   Content-Type: application/javascript
   Cache-Control: public, max-age=31536000, immutable
 
 /images/*
   Cache-Control: public, max-age=31536000, immutable
 
+/public/images/*
+  Cache-Control: public, max-age=31536000, immutable

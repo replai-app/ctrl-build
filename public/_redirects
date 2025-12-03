@@ -1,1 +1,4 @@
 /_next/static/* /static/:splat 200
+/images/* /public/images/:splat 200
+/manifest.json /public/manifest.json 200
+/favicon* /public/favicon* 200
