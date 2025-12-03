@@ -99,8 +99,25 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
   return (
     <html lang="en">
+      <head>
+        {supabaseUrl && supabaseAnonKey && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                window.__ENV__ = {
+                  NEXT_PUBLIC_SUPABASE_URL: ${JSON.stringify(supabaseUrl)},
+                  NEXT_PUBLIC_SUPABASE_ANON_KEY: ${JSON.stringify(supabaseAnonKey)}
+                };
+              `,
+            }}
+          />
+        )}
+      </head>
       <body className="antialiased">
         <Navigation />
         <main className="pt-16">{children}</main>
