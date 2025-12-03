@@ -2,6 +2,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
   "nodeVersion": "20",
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "rootDirectory": "."
 }
 
