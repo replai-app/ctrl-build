@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import type { User } from '@supabase/supabase-js';
+import { getApiEndpoint } from '@/lib/api-client';
 
 interface ProfileOverviewProps {
   user: User;
@@ -30,7 +31,7 @@ export default function ProfileOverview({ user }: ProfileOverviewProps) {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await fetch('/api/stats');
+        const response = await fetch(getApiEndpoint('/api/stats'));
         if (response.ok) {
           const data = await response.json();
           setStats(data);

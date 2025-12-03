@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Gear } from 'phosphor-react';
+import { getApiEndpoint } from '@/lib/api-client';
 
 export default function Hero() {
   const [inputValue, setInputValue] = useState('');
@@ -72,7 +73,7 @@ export default function Hero() {
     setIsDockCollapsed(true);
 
     try {
-      const response = await fetch('/api/reconstruct', {
+      const response = await fetch(getApiEndpoint('/api/reconstruct'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

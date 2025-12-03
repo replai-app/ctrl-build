@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import type { User } from '@supabase/supabase-js';
+import { getApiEndpoint } from '@/lib/api-client';
 
 interface ProfileHistoryProps {
   user: User;
@@ -24,7 +25,7 @@ export default function ProfileHistory({ user }: ProfileHistoryProps) {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const response = await fetch('/api/history');
+        const response = await fetch(getApiEndpoint('/api/history'));
         if (response.ok) {
           const data = await response.json();
           const formattedHistory = (data.history || []).map((item: any) => ({
@@ -100,7 +101,7 @@ export default function ProfileHistory({ user }: ProfileHistoryProps) {
                     onClick={async (e) => {
                       e.stopPropagation();
                       try {
-                        const response = await fetch('/api/restore', {
+                        const response = await fetch(getApiEndpoint('/api/restore'), {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ historyId: item.id }),
