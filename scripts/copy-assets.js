@@ -21,25 +21,21 @@ const copyDir = (src, dest) => {
 };
 
 const nextDir = path.join(process.cwd(), '.next');
-const outputDir = path.join(nextDir, 'server', 'app');
+const publicDir = path.join(process.cwd(), 'public');
 
-if (fs.existsSync(outputDir)) {
-  const publicDir = path.join(process.cwd(), 'public');
-  const staticDir = path.join(nextDir, 'static');
-  
+if (fs.existsSync(nextDir)) {
   if (fs.existsSync(publicDir)) {
-    console.log('Copying public folder to output...');
-    copyDir(publicDir, path.join(outputDir, '..', '..', 'public'));
+    console.log('Copying public folder to .next/public...');
+    const destPublic = path.join(nextDir, 'public');
+    if (fs.existsSync(destPublic)) {
+      fs.rmSync(destPublic, { recursive: true, force: true });
+    }
+    copyDir(publicDir, destPublic);
+    console.log('Public assets copied successfully!');
+  } else {
+    console.log('Public directory not found, skipping...');
   }
-  
-  if (fs.existsSync(staticDir)) {
-    console.log('Copying static folder to output...');
-    copyDir(staticDir, path.join(outputDir, '..', '..', 'static'));
-  }
-  
-  console.log('Assets copied successfully!');
 } else {
-  console.error('Output directory not found:', outputDir);
+  console.error('Next.js build directory not found:', nextDir);
   process.exit(1);
 }
-
