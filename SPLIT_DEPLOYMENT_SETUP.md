@@ -1,70 +1,74 @@
-# Split Deployment Setup: Frontend (Cloudflare) + API (Separate Platform)
+# Split Deployment Setup: Frontend (Cloudflare) + API (Vercel)
 
-This guide explains how to keep your frontend on Cloudflare Pages while hosting your API routes on a platform that properly supports Next.js API routes and environment variables (like Vercel, Railway, or Render).
+This guide explains how to keep your frontend on Cloudflare Pages while hosting your API routes on Vercel. Your domain stays on Cloudflare DNS (no transfer needed).
 
 ## Architecture
 
+- **Domain DNS**: Cloudflare (stays there, no transfer needed)
 - **Frontend**: Cloudflare Pages (static Next.js build)
-- **API Server**: Separate platform (Vercel/Railway/Render) running Next.js API routes
+- **API Server**: Vercel (running Next.js API routes)
 - **Communication**: Frontend calls API via environment variable `NEXT_PUBLIC_API_URL`
 
-## Step 1: Deploy API Routes to Separate Platform
+## Step 1: Deploy API Routes to Vercel
 
-### Option A: Vercel (Recommended - Best Next.js Support)
-
-1. Create a new Vercel project
-2. Connect your GitHub repository
-3. Set **Root Directory** to your project root
-4. Set **Build Command**: `npm run build`
-5. Set **Output Directory**: `.next`
-6. Add environment variables in Vercel:
+1. Go to [Vercel Dashboard](https://vercel.com/dashboard)
+2. Click "Add New Project"
+3. Import your GitHub repository (`monk-haus/ctrl-build`)
+4. Vercel will auto-detect Next.js settings
+5. Add environment variables in Vercel:
    - `NEXT_PUBLIC_SUPABASE_URL` (Plain text)
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY` (Plain text)
    - `GEMINI_API_KEY` (Secret)
-   - `NEXT_PUBLIC_SITE_URL` (Plain text)
-7. Deploy - you'll get a URL like `https://ctrl-build-api.vercel.app`
+   - `NEXT_PUBLIC_SITE_URL` (Plain text) - Set to `https://ctrl-build.com`
+6. Click "Deploy"
+7. After deployment, you'll get a URL like `https://ctrl-build.vercel.app` - **Copy this URL**
 
-### Option B: Railway
+## Step 2: Configure Cloudflare Pages Frontend
 
-1. Create new Railway project
-2. Connect GitHub repository
-3. Set environment variables
-4. Deploy - you'll get a URL like `https://ctrl-build-api.up.railway.app`
-
-### Option C: Render
-
-1. Create new Web Service on Render
-2. Connect GitHub repository
-3. Set environment variables
-4. Deploy - you'll get a URL like `https://ctrl-build-api.onrender.com`
-
-## Step 2: Update Frontend Configuration
-
-1. In Cloudflare Pages dashboard, add environment variable:
+1. In Cloudflare Pages dashboard → Settings → Environment variables, add:
    - Variable name: `NEXT_PUBLIC_API_URL`
-   - Value: Your API server URL (e.g., `https://ctrl-build-api.vercel.app`)
+   - Value: Your Vercel deployment URL (e.g., `https://ctrl-build.vercel.app`)
    - Type: Plain text
    - Environment: Production
 
 2. The frontend code is already configured to use `NEXT_PUBLIC_API_URL` if set, otherwise falls back to relative paths.
 
-## Step 3: Update API Routes (If Needed)
+## Step 3: Configure Domain DNS (Keep on Cloudflare)
 
-The API routes are already set up. They just need to be deployed to a platform that supports Next.js API routes.
+Your domain stays on Cloudflare DNS. Configure it to point to Cloudflare Pages:
 
-## Step 4: Test
+1. Go to Cloudflare Dashboard → Your Domain → DNS → Records
+2. Add/Update CNAME record:
+   - Type: `CNAME`
+   - Name: `@` (or your root domain)
+   - Target: `ctrl-build.pages.dev` (your Cloudflare Pages subdomain)
+   - Proxy status: **Enabled** (orange cloud) - OK for static frontend
+   - TTL: Auto
 
-1. Visit your Cloudflare Pages site
-2. Try the text refinement feature
-3. Check browser console for API calls
-4. Verify they're going to your separate API server
+3. For www subdomain (optional):
+   - Type: `CNAME`
+   - Name: `www`
+   - Target: `ctrl-build.pages.dev`
+   - Proxy: Enabled
+   - TTL: Auto
+
+## Step 4: Test the Setup
+
+1. Wait 5-10 minutes for DNS propagation
+2. Visit `https://ctrl-build.com` (your Cloudflare Pages frontend)
+3. Try the text refinement feature
+4. Open browser console (F12) → Network tab
+5. Verify API calls are going to your Vercel URL (`https://ctrl-build.vercel.app/api/reconstruct`)
+6. Check that the text refinement works correctly
 
 ## Benefits
 
-✅ **Frontend stays on Cloudflare Pages** (fast CDN, free tier)
-✅ **API routes work properly** (proper environment variable support)
-✅ **No environment variable issues** (API platform handles them correctly)
+✅ **Domain stays on Cloudflare DNS** (no transfer needed)
+✅ **Frontend on Cloudflare Pages** (fast CDN, free tier, DDoS protection)
+✅ **API routes on Vercel** (proper Next.js support, environment variables work)
+✅ **No environment variable issues** (Vercel handles them correctly)
 ✅ **Scalable** (can scale API independently)
+✅ **Best of both worlds** (Cloudflare CDN + Vercel API)
 
 ## File Structure
 
