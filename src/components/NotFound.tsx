@@ -103,7 +103,6 @@ export default function NotFound() {
             }`}
             style={{
               WebkitTextStroke: '2px white',
-              textStroke: '2px white',
               color: 'transparent',
               fontFamily: 'monospace',
               letterSpacing: '0.1em',

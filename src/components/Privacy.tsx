@@ -11,7 +11,7 @@ export default function Privacy() {
   const [redactedTerms, setRedactedTerms] = useState<Set<string>>(new Set());
   const [dotPosition, setDotPosition] = useState(0);
   const contentRef = useRef<HTMLDivElement>(null);
-  const animationRef = useRef<number>();
+  const animationRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     const checkMobile = () => {

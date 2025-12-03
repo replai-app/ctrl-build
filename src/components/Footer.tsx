@@ -111,7 +111,6 @@ export default function Footer() {
               style={{
                 fontWeight: 200,
                 WebkitTextStroke: '1px white',
-                textStroke: '1px white',
                 letterSpacing: '-0.03em',
               }}
             >

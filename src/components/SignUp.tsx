@@ -85,7 +85,6 @@ export default function SignUp() {
             style={{
               fontWeight: 200,
               WebkitTextStroke: '1px white',
-              textStroke: '1px white',
               transform: 'rotate(-90deg)',
               whiteSpace: 'nowrap',
             }}

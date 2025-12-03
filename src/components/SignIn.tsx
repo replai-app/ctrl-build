@@ -106,7 +106,6 @@ export default function SignIn() {
             style={{
               fontWeight: 200,
               WebkitTextStroke: '1px white',
-              textStroke: '1px white',
               whiteSpace: 'nowrap',
               animation: isDesktop ? 'driftUpDesktop 60s linear infinite' : 'driftUp 60s linear infinite',
             }}
