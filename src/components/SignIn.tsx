@@ -21,7 +21,21 @@ export default function SignIn() {
   const passwordInputRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const router = useRouter();
-  const supabase = createClient();
+  
+  let supabase;
+  try {
+    supabase = createClient();
+  } catch (error) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#F4F4F0] px-6">
+        <div className="w-full max-w-md">
+          <p className="font-['SpaceMono'] text-sm text-red-500">
+            ERROR: Supabase not configured
+          </p>
+        </div>
+      </div>
+    );
+  }
   
   useEffect(() => {
     const checkDesktop = () => {

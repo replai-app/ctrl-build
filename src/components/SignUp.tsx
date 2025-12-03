@@ -17,7 +17,21 @@ export default function SignUp() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const supabase = createClient();
+  
+  let supabase;
+  try {
+    supabase = createClient();
+  } catch (error) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#F4F4F0] px-6">
+        <div className="w-full max-w-md">
+          <p className="font-['SpaceMono'] text-sm text-red-500">
+            ERROR: Supabase not configured
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   useEffect(() => {
     setIsFormVisible(true);

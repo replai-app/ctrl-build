@@ -14,8 +14,22 @@ export default function Recover() {
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [progress, setProgress] = useState(0);
   const [isFocused, setIsFocused] = useState(false);
-  const supabase = createClient();
   const router = useRouter();
+  
+  let supabase;
+  try {
+    supabase = createClient();
+  } catch (error) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#F4F4F0] px-6">
+        <div className="w-full max-w-md">
+          <p className="font-['SpaceMono'] text-sm text-red-500">
+            ERROR: Supabase not configured
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   useEffect(() => {
     setIsFormVisible(true);
