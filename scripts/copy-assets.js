@@ -31,6 +31,20 @@ if (fs.existsSync(nextDir)) {
       fs.rmSync(destPublic, { recursive: true, force: true });
     }
     copyDir(publicDir, destPublic);
+    
+    const redirectsFile = path.join(publicDir, '_redirects');
+    const headersFile = path.join(publicDir, '_headers');
+    
+    if (fs.existsSync(redirectsFile)) {
+      console.log('Copying _redirects to .next root...');
+      fs.copyFileSync(redirectsFile, path.join(nextDir, '_redirects'));
+    }
+    
+    if (fs.existsSync(headersFile)) {
+      console.log('Copying _headers to .next root...');
+      fs.copyFileSync(headersFile, path.join(nextDir, '_headers'));
+    }
+    
     console.log('Public assets copied successfully!');
   } else {
     console.log('Public directory not found, skipping...');
