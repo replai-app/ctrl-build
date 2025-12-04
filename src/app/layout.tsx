@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     description: "Advanced AI-powered text refinement engine that humanizes AI-generated content. Restore natural cadence and nuance to your writing.",
     images: [
       {
-        url: "/images/og-image.png",
+        url: "/images/logo.png",
         width: 1200,
         height: 630,
         alt: "CTRL — BUILD AI Text Refinement Engine",
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "CTRL — BUILD | AI Text Refinement Engine",
     description: "Advanced AI-powered text refinement engine that humanizes AI-generated content.",
-    images: ["/images/og-image.png"],
+    images: ["/images/logo.png"],
     creator: "@ctrlbuild",
   },
   alternates: {

@@ -63,7 +63,7 @@ export default function Home() {
       "Real-time Text Refinement",
       "Multiple Tone Modes (Standard, Academic, Executive)"
     ],
-    "screenshot": "/images/og-image.png",
+    "screenshot": "/images/logo.png",
     "url": process.env.NEXT_PUBLIC_SITE_URL || "https://ctrl-build.com"
   };
 
