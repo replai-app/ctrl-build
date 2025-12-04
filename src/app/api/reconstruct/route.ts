@@ -12,7 +12,7 @@ const getModePrompt = (mode: string) => {
     Epistolary: 'Refine this text in a warm, direct, first-person voice. Make it feel personal and slightly vulnerable. Vary sentence length to mimic a speaking voice. Use "I" statements naturally. This is for cover letters, personal emails, artist statements, and manifestos.',
     Dialectic: 'Refine this text to be persuasive, logical, and sharp with strong contrasts. Prioritize rhetorical devices like antithesis and rhetorical questions. Make it feel like it has a strong opinion. This is for opinion pieces, debate prep, critical essays, and legal arguments.',
     Minimalist: 'Refine this text to be Hemingway-esque: short, punchy, with no adverbs. Aggressively prune the text, stripping away all fluff to leave only the bones. Use the fewest words possible while preserving meaning. This is for UX copy, landing page headers, and fast-paced newsletters.',
-    LOWERCASE: 'Refine this text in a high-competence, low-effort style. Force all text to lowercase with zero capitalization. Use periods where they naturally belong (end of sentences, abbreviations). Use soft punctuation (line breaks or commas) only for rapid-fire thoughts or lists. Strip out corporate language like "synergy," "circling back," and "delighted to." Be direct and use the fewest words possible to convey meaning. Fix any dictation errors. This mimics the Alt-Twitter or Dev aesthetic - natural, lowercase, but grammatically sound.',
+    LOWERCASE: 'Refine this text in a high-competence, low-effort style. Force all text to lowercase with zero capitalization. Use casual abbreviations naturally like "u" for "you", "ur" for "your", "cus" or "cuz" for "because", "tho" for "though", "prob" for "probably", "thru" for "through", but don\'t overdo it - keep it balanced and readable. Use periods where they naturally belong (end of sentences, abbreviations). Use soft punctuation (line breaks or commas) only for rapid-fire thoughts or lists. Strip out corporate language like "synergy," "circling back," and "delighted to." Be direct and use the fewest words possible to convey meaning. Fix any dictation errors. This mimics the Alt-Twitter or Dev aesthetic - laid back, natural, lowercase, but still readable.',
   };
   return modePrompts[mode] || modePrompts.Standard;
 };
@@ -123,6 +123,24 @@ Refined text:`;
       // Force lowercase
       refinedText = refinedText.toLowerCase();
       
+      // Apply casual abbreviations (light touch - common casual ones)
+      // Order matters: do specific contractions first, then general words
+      // Only replace standalone words, not parts of other words
+      refinedText = refinedText.replace(/\byou're\b/g, "ur");
+      refinedText = refinedText.replace(/\byoure\b/g, "ur");
+      refinedText = refinedText.replace(/\byou'll\b/g, "u'll");
+      refinedText = refinedText.replace(/\byou've\b/g, "u've");
+      refinedText = refinedText.replace(/\byou'd\b/g, "u'd");
+      refinedText = refinedText.replace(/\byour\b/g, 'ur');
+      refinedText = refinedText.replace(/\byou\b/g, 'u');
+      refinedText = refinedText.replace(/\bbecause\b/g, 'cus');
+      refinedText = refinedText.replace(/\bthough\b/g, 'tho');
+      refinedText = refinedText.replace(/\bthrough\b/g, 'thru');
+      refinedText = refinedText.replace(/\bprobably\b/g, 'prob');
+      refinedText = refinedText.replace(/\bdefinitely\b/g, 'def');
+      refinedText = refinedText.replace(/\bwith\b/g, 'w/');
+      refinedText = refinedText.replace(/\bwithout\b/g, 'w/o');
+      
       // Strip corporate language
       const corporateTerms = [
         /\bsynergy\b/gi,
@@ -154,7 +172,7 @@ Refined text:`;
       refinedText = refinedText.replace(/\.\s*\./g, '.');
       
       // Keep periods where they belong - the AI prompt handles natural flow
-      // We just ensure lowercase, remove corporate speak, and clean up spacing
+      // We just ensure lowercase, apply light abbreviations, remove corporate speak, and clean up spacing
     }
     
     const corruptionIndicators = [
