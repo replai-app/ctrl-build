@@ -118,14 +118,9 @@ Refined text:`;
     
     refinedText = refinedText.replace(/\s*undefined\s*/gi, ' ').trim();
     
-    // Post-process LOWERCASE mode
     if (mode === 'LOWERCASE') {
-      // Force lowercase
       refinedText = refinedText.toLowerCase();
       
-      // Apply casual abbreviations (light touch - common casual ones)
-      // Order matters: do specific contractions first, then general words
-      // Only replace standalone words, not parts of other words
       refinedText = refinedText.replace(/\byou're\b/g, "ur");
       refinedText = refinedText.replace(/\byoure\b/g, "ur");
       refinedText = refinedText.replace(/\byou'll\b/g, "u'll");
@@ -141,7 +136,6 @@ Refined text:`;
       refinedText = refinedText.replace(/\bwith\b/g, 'w/');
       refinedText = refinedText.replace(/\bwithout\b/g, 'w/o');
       
-      // Strip corporate language
       const corporateTerms = [
         /\bsynergy\b/gi,
         /\bcircling back\b/gi,
@@ -166,13 +160,9 @@ Refined text:`;
         refinedText = refinedText.replace(term, '');
       });
       
-      // Clean up extra whitespace but preserve sentence structure and periods
       refinedText = refinedText.replace(/\s+/g, ' ').trim();
       refinedText = refinedText.replace(/\s+\./g, '.');
       refinedText = refinedText.replace(/\.\s*\./g, '.');
-      
-      // Keep periods where they belong - the AI prompt handles natural flow
-      // We just ensure lowercase, apply light abbreviations, remove corporate speak, and clean up spacing
     }
     
     const corruptionIndicators = [

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Gear } from 'phosphor-react';
 import { getApiEndpoint } from '@/lib/api-client';
+import { createClient } from '@/lib/supabase/client';
 
 export default function Hero() {
   const [inputValue, setInputValue] = useState('');
@@ -45,6 +46,30 @@ export default function Hero() {
       setShowH1(false);
       window.history.replaceState({}, '', '/');
     }
+  }, []);
+
+  useEffect(() => {
+    const loadDefaultMode = async () => {
+      try {
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (user) {
+          const { data } = await supabase
+            .from('profiles')
+            .select('default_mode')
+            .eq('id', user.id)
+            .single();
+
+          if (data?.default_mode) {
+            setMode(data.default_mode);
+          }
+        }
+      } catch (error) {
+      }
+    };
+
+    loadDefaultMode();
   }, []);
 
   const handleInputClick = () => {
