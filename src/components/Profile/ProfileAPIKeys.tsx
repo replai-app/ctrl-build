@@ -2,12 +2,15 @@
 
 import { useState, useEffect, useRef } from 'react';
 import type { User } from '@supabase/supabase-js';
+import { createClient } from '@/lib/supabase/client';
+import { getUserTier } from '@/lib/user-tier';
 
 interface ProfileAPIKeysProps {
   user: User;
 }
 
 export default function ProfileAPIKeys({ user }: ProfileAPIKeysProps) {
+  const [tier, setTier] = useState<'free' | 'pro'>('free');
   const [isRevealed, setIsRevealed] = useState(false);
   const [password, setPassword] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
@@ -35,6 +38,22 @@ export default function ProfileAPIKeys({ user }: ProfileAPIKeysProps) {
     setCursorPosition({ x: event.clientX, y: event.clientY });
     setTimeout(() => setCopied(false), 800);
   };
+
+  useEffect(() => {
+    const loadTier = async () => {
+      try {
+        const supabase = createClient();
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('subscription_tier')
+          .eq('id', user.id)
+          .single();
+        setTier(getUserTier(profile));
+      } catch (error) {
+      }
+    };
+    loadTier();
+  }, [user.id]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -72,7 +91,22 @@ export default function ProfileAPIKeys({ user }: ProfileAPIKeysProps) {
       </div>
 
       <div className="hidden md:block">
-        <div className="border border-solid border-[#1A1A1A] bg-[#1A1A1A] p-8">
+        {tier === 'free' ? (
+          <div className="border border-solid border-[#1A1A1A] bg-white p-8">
+            <div className="mb-6">
+              <p className="mb-4 font-['SpaceMono'] text-xs uppercase text-[#1A1A1A] opacity-50">
+                API ACCESS DENIED
+              </p>
+              <p className="mb-6 font-['SpaceMono'] text-sm text-[#1A1A1A]">
+                API access is only available for Pro users. Upgrade to Pro to get API keys and integrate ctrl-build into your applications.
+              </p>
+              <button className="w-full border border-solid border-[#1A1A1A] bg-[#0047FF] px-6 py-3 font-['SpaceMono'] text-sm font-bold uppercase text-white transition-colors hover:bg-[#0033CC]">
+                UPGRADE TO PRO
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="border border-solid border-[#1A1A1A] bg-[#1A1A1A] p-8">
           <div className="mb-6">
             <p className="mb-4 font-['SpaceMono'] text-xs uppercase text-white opacity-70">
               API SECRET KEY
@@ -146,6 +180,7 @@ export default function ProfileAPIKeys({ user }: ProfileAPIKeysProps) {
             </button>
           </div>
         </div>
+        )}
       </div>
     </div>
   );

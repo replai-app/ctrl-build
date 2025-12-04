@@ -1,6 +1,8 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { getUserTier, getTierFeatures } from '@/lib/user-tier';
+import { createHash } from 'crypto';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
@@ -188,8 +190,52 @@ Refined text:`;
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     
+    const inputWordCount = text.split(/\s+/).filter((word: string) => word.length > 0).length;
+    
     if (user) {
-      const wordCount = refinedText.split(/\s+/).filter(word => word.length > 0).length;
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('subscription_tier')
+        .eq('id', user.id)
+        .single();
+
+      const tier = getUserTier(profile);
+      const features = getTierFeatures(tier);
+      const today = new Date().toISOString().split('T')[0];
+      
+      let todayActivity = null;
+      if (features.dailyQuota !== 'unlimited') {
+        const { data } = await supabase
+          .from('user_activity')
+          .select('word_count, refinement_count')
+          .eq('user_id', user.id)
+          .eq('activity_date', today)
+          .single();
+
+        todayActivity = data;
+        const todayWordCount = todayActivity?.word_count || 0;
+        const newTotal = todayWordCount + inputWordCount;
+
+        if (newTotal > features.dailyQuota) {
+          return NextResponse.json(
+            { 
+              error: `Daily quota exceeded. You have used ${todayWordCount}/${features.dailyQuota} words today. Upgrade to Pro for unlimited access.` 
+            },
+            { status: 403 }
+          );
+        }
+      } else {
+        const { data } = await supabase
+          .from('user_activity')
+          .select('word_count, refinement_count')
+          .eq('user_id', user.id)
+          .eq('activity_date', today)
+          .single();
+        
+        todayActivity = data;
+      }
+
+      const wordCount = refinedText.split(/\s+/).filter((word: string) => word.length > 0).length;
       
       await supabase
         .from('refinement_history')
@@ -199,6 +245,54 @@ Refined text:`;
           output_text: refinedText,
           tone: mode || 'Standard',
           word_count: wordCount,
+        });
+
+      await supabase
+        .from('user_activity')
+        .upsert({
+          user_id: user.id,
+          activity_date: today,
+          word_count: (todayActivity?.word_count || 0) + inputWordCount,
+          refinement_count: (todayActivity?.refinement_count || 0) + 1,
+        }, {
+          onConflict: 'user_id,activity_date'
+        });
+    } else {
+      const forwarded = request.headers.get('x-forwarded-for');
+      const realIp = request.headers.get('x-real-ip');
+      const ip = forwarded?.split(',')[0] || realIp || 'unknown';
+      const guestId = createHash('sha256').update(ip + (process.env.SALT || 'ctrl-build-salt')).digest('hex').substring(0, 16);
+      const today = new Date().toISOString().split('T')[0];
+      
+      const { data: todayActivity } = await supabase
+        .from('guest_activity')
+        .select('word_count, refinement_count')
+        .eq('guest_id', guestId)
+        .eq('activity_date', today)
+        .single();
+
+      const todayWordCount = todayActivity?.word_count || 0;
+      const newTotal = todayWordCount + inputWordCount;
+      const freeTierQuota = 500;
+
+      if (newTotal > freeTierQuota) {
+        return NextResponse.json(
+          { 
+            error: `Daily quota exceeded. You have used ${todayWordCount}/${freeTierQuota} words today. Sign up for a free account or upgrade to Pro for unlimited access.` 
+          },
+          { status: 403 }
+        );
+      }
+
+      await supabase
+        .from('guest_activity')
+        .upsert({
+          guest_id: guestId,
+          activity_date: today,
+          word_count: newTotal,
+          refinement_count: (todayActivity?.refinement_count || 0) + 1,
+        }, {
+          onConflict: 'guest_id,activity_date'
         });
     }
 

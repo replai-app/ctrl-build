@@ -1,6 +1,9 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import type { User } from '@supabase/supabase-js';
+import { createClient } from '@/lib/supabase/client';
+import { getUserTier } from '@/lib/user-tier';
 
 type ProfileView = 'overview' | 'history' | 'subscription' | 'api' | 'settings';
 
@@ -28,13 +31,30 @@ export default function ProfileSidebar({
   onViewChange,
   onSignOut,
 }: ProfileSidebarProps) {
+  const [tier, setTier] = useState<'free' | 'pro'>('free');
   const sigilPath = generateSigil(user.email || '');
 
-  const menuItems: { id: ProfileView; label: string; mobileLabel?: string }[] = [
+  useEffect(() => {
+    const loadTier = async () => {
+      try {
+        const supabase = createClient();
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('subscription_tier')
+          .eq('id', user.id)
+          .single();
+        setTier(getUserTier(profile));
+      } catch (error) {
+      }
+    };
+    loadTier();
+  }, [user.id]);
+
+  const menuItems: { id: ProfileView; label: string; mobileLabel?: string; requiresPro?: boolean }[] = [
     { id: 'overview', label: 'OVERVIEW' },
     { id: 'history', label: 'HISTORY LOG', mobileLabel: 'HISTORY' },
     { id: 'subscription', label: 'SUBSCRIPTION', mobileLabel: 'BILLING' },
-    { id: 'api', label: 'API KEYS' },
+    { id: 'api', label: 'API KEYS', requiresPro: true },
     { id: 'settings', label: 'SETTINGS' },
   ];
 
@@ -53,25 +73,39 @@ export default function ProfileSidebar({
                 USER_ID: <span className="opacity-70">{user.email}</span>
               </p>
               <p className="uppercase text-[#1A1A1A]">
-                PLAN: <span className="text-[#0047FF]">PRO</span>
+                PLAN: <span className={tier === 'pro' ? 'text-[#0047FF]' : 'opacity-70'}>{tier === 'pro' ? 'PRO' : 'FREE'}</span>
               </p>
             </div>
           </div>
 
           <nav className="flex-1 space-y-1 p-4">
-            {menuItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => onViewChange(item.id)}
-                className={`w-full px-4 py-3 text-left font-['SpaceMono'] text-xs uppercase transition-colors ${
-                  activeView === item.id
-                    ? 'bg-[#1A1A1A] text-white'
-                    : 'text-[#1A1A1A] hover:bg-[#1A1A1A] hover:text-white'
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
+            {menuItems.map((item) => {
+              if (item.requiresPro && tier === 'free') {
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => onViewChange('subscription')}
+                    className="w-full px-4 py-3 text-left font-['SpaceMono'] text-xs uppercase text-[#1A1A1A] opacity-50 transition-colors hover:opacity-100"
+                    title="Upgrade to Pro to access API Keys"
+                  >
+                    {item.label} (PRO)
+                  </button>
+                );
+              }
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => onViewChange(item.id)}
+                  className={`w-full px-4 py-3 text-left font-['SpaceMono'] text-xs uppercase transition-colors ${
+                    activeView === item.id
+                      ? 'bg-[#1A1A1A] text-white'
+                      : 'text-[#1A1A1A] hover:bg-[#1A1A1A] hover:text-white'
+                  }`}
+                >
+                  {item.label}
+                </button>
+              );
+            })}
           </nav>
 
           <div className="border-t border-solid border-[#1A1A1A] p-4">
@@ -88,7 +122,7 @@ export default function ProfileSidebar({
       <div className="sticky top-12 z-40 border-b border-solid border-[#1A1A1A] bg-[#F4F4F0] md:hidden max-[567px]:top-14">
         <div className="flex overflow-x-auto">
           {menuItems
-            .filter((item) => item.id !== 'api')
+            .filter((item) => !(item.requiresPro && tier === 'free'))
             .map((item) => (
               <button
                 key={item.id}

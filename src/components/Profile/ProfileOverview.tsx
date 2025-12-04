@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { getApiEndpoint } from '@/lib/api-client';
+import { createClient } from '@/lib/supabase/client';
+import { getUserTier, getTierFeatures } from '@/lib/user-tier';
 
 interface ProfileOverviewProps {
   user: User;
@@ -26,11 +28,33 @@ export default function ProfileOverview({ user }: ProfileOverviewProps) {
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
   const [stats, setStats] = useState<StatsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [tier, setTier] = useState<'free' | 'pro'>('free');
+  const [todayWordCount, setTodayWordCount] = useState(0);
   const copiedRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
+        const supabase = createClient();
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('subscription_tier')
+          .eq('id', user.id)
+          .single();
+        
+        const userTier = getUserTier(profile);
+        setTier(userTier);
+
+        const today = new Date().toISOString().split('T')[0];
+        const { data: todayActivity } = await supabase
+          .from('user_activity')
+          .select('word_count')
+          .eq('user_id', user.id)
+          .eq('activity_date', today)
+          .single();
+
+        setTodayWordCount(todayActivity?.word_count || 0);
+
         const response = await fetch(getApiEndpoint('/api/stats'));
         if (response.ok) {
           const data = await response.json();
@@ -44,7 +68,7 @@ export default function ProfileOverview({ user }: ProfileOverviewProps) {
     };
 
     fetchStats();
-  }, []);
+  }, [user.id]);
 
   const days = Array.from({ length: 30 }, (_, i) => {
     const date = new Date();
@@ -143,13 +167,24 @@ export default function ProfileOverview({ user }: ProfileOverviewProps) {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <div
             className="cursor-pointer border border-solid border-[#1A1A1A] bg-white p-6 transition-colors hover:bg-[#F4F4F0]"
-            onClick={(e) => handleCopy(`${stats?.quota.toLocaleString() || 0} / UNLIMITED`, 'quota', e)}
+            onClick={(e) => {
+              const features = getTierFeatures(tier);
+              const quotaText = features.dailyQuota === 'unlimited' 
+                ? `${todayWordCount} / UNLIMITED`
+                : `${todayWordCount} / ${features.dailyQuota}`;
+              handleCopy(quotaText, 'quota', e);
+            }}
           >
             <p className="mb-2 font-['SpaceMono'] text-2xl font-bold text-[#1A1A1A]">
-              {stats?.quota.toLocaleString() || 0} / UNLIMITED
+              {(() => {
+                const features = getTierFeatures(tier);
+                return features.dailyQuota === 'unlimited' 
+                  ? `${todayWordCount} / UNLIMITED`
+                  : `${todayWordCount} / ${features.dailyQuota}`;
+              })()}
             </p>
             <p className="font-['SpaceMono'] text-xs uppercase text-[#1A1A1A] opacity-50">
-              QUOTA
+              DAILY_QUOTA
             </p>
           </div>
 

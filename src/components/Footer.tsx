@@ -80,6 +80,9 @@ export default function Footer() {
               <Link href="/privacy" className="block min-h-[48px] py-2 transition-colors hover:text-[#0047FF] md:min-h-0" style={{ cursor: 'text' }}>
                 Privacy Policy
               </Link>
+              <Link href="/cookies" className="block min-h-[48px] py-2 transition-colors hover:text-[#0047FF] md:min-h-0" style={{ cursor: 'text' }}>
+                Local Persistence
+              </Link>
               <Link href="/zero-log" className="block min-h-[48px] py-2 font-bold transition-colors hover:text-[#0047FF] md:min-h-0" style={{ cursor: 'text' }}>
                 Zero-Log Guarantee
               </Link>

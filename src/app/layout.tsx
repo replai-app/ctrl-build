@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
+import CookieBanner from "@/components/CookieBanner";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://ctrl-build.com'),
@@ -121,6 +122,7 @@ export default function RootLayout({
       <body className="antialiased">
         <Navigation />
         <main className="pt-16">{children}</main>
+        <CookieBanner />
       </body>
     </html>
   );
