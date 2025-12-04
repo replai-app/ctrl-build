@@ -9,6 +9,10 @@ const getModePrompt = (mode: string) => {
     Standard: 'Refine this text to sound more natural and human-like while maintaining its original meaning. Add subtle nuance and improve the flow.',
     Academic: 'Refine this text for an academic audience. Maintain formal tone while improving clarity, precision, and scholarly expression.',
     Executive: 'Refine this text for executive communication. Make it concise, impactful, and professional while preserving key information.',
+    Epistolary: 'Refine this text in a warm, direct, first-person voice. Make it feel personal and slightly vulnerable. Vary sentence length to mimic a speaking voice. Use "I" statements naturally. This is for cover letters, personal emails, artist statements, and manifestos.',
+    Dialectic: 'Refine this text to be persuasive, logical, and sharp with strong contrasts. Prioritize rhetorical devices like antithesis and rhetorical questions. Make it feel like it has a strong opinion. This is for opinion pieces, debate prep, critical essays, and legal arguments.',
+    Minimalist: 'Refine this text to be Hemingway-esque: short, punchy, with no adverbs. Aggressively prune the text, stripping away all fluff to leave only the bones. Use the fewest words possible while preserving meaning. This is for UX copy, landing page headers, and fast-paced newsletters.',
+    LOWERCASE: 'Refine this text in a high-competence, low-effort style. Force all text to lowercase with zero capitalization. Use periods where they naturally belong (end of sentences, abbreviations). Use soft punctuation (line breaks or commas) only for rapid-fire thoughts or lists. Strip out corporate language like "synergy," "circling back," and "delighted to." Be direct and use the fewest words possible to convey meaning. Fix any dictation errors. This mimics the Alt-Twitter or Dev aesthetic - natural, lowercase, but grammatically sound.',
   };
   return modePrompts[mode] || modePrompts.Standard;
 };
@@ -113,6 +117,45 @@ Refined text:`;
       .trim();
     
     refinedText = refinedText.replace(/\s*undefined\s*/gi, ' ').trim();
+    
+    // Post-process LOWERCASE mode
+    if (mode === 'LOWERCASE') {
+      // Force lowercase
+      refinedText = refinedText.toLowerCase();
+      
+      // Strip corporate language
+      const corporateTerms = [
+        /\bsynergy\b/gi,
+        /\bcircling back\b/gi,
+        /\bdelighted to\b/gi,
+        /\bleverage\b/gi,
+        /\bparadigm\b/gi,
+        /\bdisrupt\b/gi,
+        /\binnovative solution\b/gi,
+        /\bthink outside the box\b/gi,
+        /\bvalue proposition\b/gi,
+        /\bstreamline\b/gi,
+        /\boptimize\b/gi,
+        /\bscalable\b/gi,
+        /\bcircle back\b/gi,
+        /\btouch base\b/gi,
+        /\bdeep dive\b/gi,
+        /\bgame changer\b/gi,
+        /\bwin-win\b/gi,
+      ];
+      
+      corporateTerms.forEach(term => {
+        refinedText = refinedText.replace(term, '');
+      });
+      
+      // Clean up extra whitespace but preserve sentence structure and periods
+      refinedText = refinedText.replace(/\s+/g, ' ').trim();
+      refinedText = refinedText.replace(/\s+\./g, '.');
+      refinedText = refinedText.replace(/\.\s*\./g, '.');
+      
+      // Keep periods where they belong - the AI prompt handles natural flow
+      // We just ensure lowercase, remove corporate speak, and clean up spacing
+    }
     
     const corruptionIndicators = [
       /[a-z][A-Z]/g,

@@ -9,6 +9,7 @@ export default function Hero() {
   const [outputText, setOutputText] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [mode, setMode] = useState('Standard');
+  const isLowercaseMode = mode === 'LOWERCASE';
   const [showPlaceholder, setShowPlaceholder] = useState(true);
   const [showH1, setShowH1] = useState(true);
   const [cursorVisible, setCursorVisible] = useState(true);
@@ -135,6 +136,17 @@ export default function Hero() {
   const minLines = showPlaceholder ? 2 : Math.max(lineCount, 10);
   const lines = Array.from({ length: minLines }, (_, i) => i + 1);
 
+  const allModes = ['Standard', 'Academic', 'Executive', 'Epistolary', 'Dialectic', 'Minimalist', 'LOWERCASE'];
+  const primaryModes = ['Standard', 'Academic', 'Executive'];
+  const secondaryModes = ['Epistolary', 'Dialectic', 'Minimalist', 'LOWERCASE'];
+
+  const getModeLabel = (m: string) => {
+    if (m === 'Epistolary') return 'PERSONAL';
+    if (m === 'Dialectic') return 'POLEMIC';
+    if (m === 'Minimalist') return 'BREVITY';
+    return m;
+  };
+
   return (
     <section
       id="workspace"
@@ -197,8 +209,12 @@ export default function Hero() {
           </h1>
           <div
             ref={outputRef}
-            className={`h-full w-full overflow-y-auto font-['PPEditorialNew'] text-base leading-relaxed text-[#1A1A1A] transition-opacity duration-500 lg:text-lg ${
+            className={`h-full w-full overflow-y-auto text-base leading-relaxed text-[#1A1A1A] transition-all duration-500 lg:text-lg ${
               showH1 && outputText.length === 0 ? 'opacity-0' : 'opacity-100'
+            } ${
+              isLowercaseMode 
+                ? "font-['SpaceMono']" 
+                : "font-['PPEditorialNew']"
             }`}
           >
             {outputText}
@@ -220,20 +236,46 @@ export default function Hero() {
           ) : (
             <div className="border border-solid border-[#1A1A1A] bg-[#F4F4F0] px-6 py-4 shadow-[8px_8px_0px_#1A1A1A] transition-all duration-300">
               <div className="flex flex-col items-center gap-4">
-                <div className="flex items-center gap-0 border border-solid border-[#1A1A1A]">
-                  {['Standard', 'Academic', 'Executive'].map((m) => (
-                    <button
-                      key={m}
-                      onClick={() => setMode(m)}
-                      className={`border-r border-solid border-[#1A1A1A] px-3 py-2 font-['SpaceMono'] text-[10px] uppercase last:border-r-0 ${
-                        mode === m
-                          ? 'bg-[#1A1A1A] text-white'
-                          : 'bg-transparent text-[#1A1A1A]'
-                      }`}
-                    >
-                      {m}
-                    </button>
-                  ))}
+                <div className="flex flex-col gap-2 w-full">
+                  <div className="flex items-center gap-0 border border-solid border-[#1A1A1A]">
+                    {primaryModes.map((m) => (
+                      <button
+                        key={m}
+                        onClick={() => setMode(m)}
+                        className={`border-r border-solid border-[#1A1A1A] px-3 py-2 font-['SpaceMono'] text-[10px] uppercase last:border-r-0 ${
+                          mode === m
+                            ? 'bg-[#1A1A1A] text-white'
+                            : 'bg-transparent text-[#1A1A1A]'
+                        }`}
+                      >
+                        {m}
+                      </button>
+                    ))}
+                  </div>
+                  <select
+                    value={secondaryModes.includes(mode) ? mode : ''}
+                    onChange={(e) => setMode(e.target.value)}
+                    className="w-full border border-solid border-[#1A1A1A] bg-[#F4F4F0] px-3 py-2 font-['SpaceMono'] text-[10px] uppercase text-[#1A1A1A] outline-none appearance-none cursor-pointer"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231A1A1A' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
+                      backgroundRepeat: 'no-repeat',
+                      backgroundPosition: 'right 8px center',
+                      paddingRight: '28px'
+                    }}
+                  >
+                    <option value="" disabled className="bg-[#F4F4F0] text-[#1A1A1A]">
+                      MORE MODES
+                    </option>
+                    {secondaryModes.map((m) => (
+                      <option
+                        key={m}
+                        value={m}
+                        className="bg-[#F4F4F0] text-[#1A1A1A]"
+                      >
+                        {getModeLabel(m)}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <button
                   onClick={handleReconstruct}
@@ -252,7 +294,7 @@ export default function Hero() {
         <div className="border border-solid border-[#1A1A1A] bg-[#F4F4F0] px-6 py-4 shadow-[8px_8px_0px_#1A1A1A]">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-0 border border-solid border-[#1A1A1A]">
-              {['Standard', 'Academic', 'Executive'].map((m) => (
+              {allModes.map((m) => (
                 <button
                   key={m}
                   onClick={() => setMode(m)}
@@ -262,7 +304,7 @@ export default function Hero() {
                       : 'bg-transparent text-[#1A1A1A]'
                   }`}
                 >
-                  {m}
+                  {getModeLabel(m)}
                 </button>
               ))}
             </div>

@@ -8,8 +8,19 @@ interface ProfileSettingsProps {
   onSignOut: () => void;
 }
 
+type Mode = 'Standard' | 'Academic' | 'Executive' | 'Epistolary' | 'Dialectic' | 'Minimalist' | 'LOWERCASE';
+
 export default function ProfileSettings({ user, onSignOut }: ProfileSettingsProps) {
-  const [defaultTone, setDefaultTone] = useState<'STANDARD' | 'ACADEMIC' | 'EXECUTIVE'>('STANDARD');
+  const [defaultTone, setDefaultTone] = useState<Mode>('Standard');
+
+  const allModes: Mode[] = ['Standard', 'Academic', 'Executive', 'Epistolary', 'Dialectic', 'Minimalist', 'LOWERCASE'];
+
+  const getModeLabel = (mode: Mode) => {
+    if (mode === 'Epistolary') return 'PERSONAL';
+    if (mode === 'Dialectic') return 'POLEMIC';
+    if (mode === 'Minimalist') return 'BREVITY';
+    return mode.toUpperCase();
+  };
 
   return (
     <div className="p-8 md:p-12">
@@ -25,21 +36,21 @@ export default function ProfileSettings({ user, onSignOut }: ProfileSettingsProp
       <div className="space-y-8">
         <div className="border border-solid border-[#1A1A1A] bg-white p-4 md:p-8">
           <p className="mb-4 font-['SpaceMono'] text-xs uppercase text-[#1A1A1A] opacity-50">
-            DEFAULT TONE
+            DEFAULT MODE
           </p>
-          <div className="flex flex-col gap-2 md:flex-row">
-            {(['STANDARD', 'ACADEMIC', 'EXECUTIVE'] as const).map((tone) => (
+          <div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4">
+            {allModes.map((mode) => (
               <button
-                key={tone}
-                onClick={() => setDefaultTone(tone)}
-                className={`w-full px-4 py-3 font-['SpaceMono'] text-xs uppercase transition-colors md:w-auto md:px-6 ${
-                  defaultTone === tone
+                key={mode}
+                onClick={() => setDefaultTone(mode)}
+                className={`w-full px-4 py-3 font-['SpaceMono'] text-xs uppercase transition-colors ${
+                  defaultTone === mode
                     ? 'bg-[#1A1A1A] text-white'
                     : 'border border-solid border-[#1A1A1A] bg-transparent text-[#1A1A1A] hover:bg-[#1A1A1A] hover:text-white'
                 }`}
                 style={{ borderRadius: '0px' }}
               >
-                {tone}
+                {getModeLabel(mode)}
               </button>
             ))}
           </div>
